@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Book Listing</string>
+    <string name="editbox_hint">Enter title or Author</string>
+
+</resources>
