@@ -8,10 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 import android.app.LoaderManager;
 import android.content.Loader;
+import android.widget.TextView;
 
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Book>> {
 
+    private TextView mEmptyStateTextView;
     private static final String BOOKAPI_REQUEST_URL =
             "https://www.googleapis.com/books/v1/volumes?q=";
     private BookAdapter bookAdapter;
@@ -23,7 +25,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Bundle extras = getIntent().getExtras();
         searchFor = extras.getString("search_for");
         Log.d("Extras data", searchFor);
@@ -32,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         ListView bookListView = (ListView) findViewById(R.id.book_list);
         bookAdapter = new BookAdapter(this, new ArrayList<Book>());
         bookListView.setAdapter(bookAdapter);
+        mEmptyStateTextView = (TextView) findViewById(R.id.empty_view);
+        bookListView.setEmptyView(mEmptyStateTextView);
     }
 
 
@@ -43,8 +46,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<List<Book>> loader, List<Book> books) {
+        mEmptyStateTextView.setText(R.string.no_books);
         bookAdapter.clear();
-
         if (books != null && !books.isEmpty()) {
             bookAdapter.addAll(books);
         }
