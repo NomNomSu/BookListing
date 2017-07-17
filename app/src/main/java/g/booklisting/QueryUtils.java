@@ -20,8 +20,11 @@ import java.util.List;
 
 
 public class QueryUtils {
+    public static final int URL_READ_TIMEOUT = 6000;
+    public static final int CONNETION_TIMEOUT = 15000;
     private static final String LOG_TAG = QueryUtils.class.getSimpleName();
 
+    // necessary empty constructor - makes sure that the class is not going to be initialised.
     private QueryUtils() {
     }
 
@@ -61,8 +64,8 @@ public class QueryUtils {
         InputStream inputStream = null;
         try {
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setReadTimeout(10000);
-            urlConnection.setConnectTimeout(15000);
+            urlConnection.setReadTimeout(URL_READ_TIMEOUT);
+            urlConnection.setConnectTimeout(CONNETION_TIMEOUT);
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
@@ -100,6 +103,7 @@ public class QueryUtils {
     }
 
     private static List<Book> extractFeatureFromJson(String bookJSON) {
+        String author;
         if (TextUtils.isEmpty(bookJSON)) {
             return null;
         }
@@ -117,8 +121,13 @@ public class QueryUtils {
                 JSONObject currentBook = bookArray.getJSONObject(i);
                 JSONObject bookProperties = currentBook.getJSONObject("volumeInfo");
                 String title = bookProperties.getString("title");
-                JSONArray authors = bookProperties.getJSONArray("authors");
-                String author = authors.getString(0);
+                try {
+                    JSONArray authors = bookProperties.getJSONArray("authors");
+                    author = authors.getString(0);
+                } catch (JSONException no_aut){
+                    author = "Author unknown";
+                }
+
                 Book book = new Book(title, author);
                 books.add(book);
             }
@@ -128,3 +137,17 @@ public class QueryUtils {
         return books;
     }
 }
+
+/*try {
+        JSONArray arrayAuthors = volumeInfoObject.getJSONArray("authors");
+        // step_2 read contents of the JSONArray and create a String
+        int i;
+        StringBuilder stringBuilder = new StringBuilder();
+        for (i = 0; i < arrayAuthors.length(); i++) {
+        stringBuilder.append(arrayAuthors.getString(i)).append(", "); // Use ", " as the delimiter
+        }
+        authors = stringBuilder.toString();
+        authors = authors.substring(0, authors.length() - 2); // Delete ", " from the end of the String
+        } catch (org.json.JSONException exc_07) {
+        authors = NO_AUTHOR;
+        }*/
